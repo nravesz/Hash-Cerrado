@@ -82,3 +82,22 @@ size_t hash_cantidad(const hash_t *hash){
 
 void hash_destruir(hash_t* hash){
 }
+
+/* FUNCIONES AUXILIARES*/
+
+/* Recorre el hash. Busca la posicion en la que se encuentre la clave pasada por parametro o hasta halla el
+ * primer vacio. */
+int buscar_posicion(hash_t* hash, const char *clave){
+	int pos = funcion_hash(???);
+	while (pos != hash->tam || hash->tabla[pos].estado != 0 || (hash->tabla[pos].clave != clave && hash->tabla[pos].estado != 1)){
+		pos++;
+	}
+	if (pos == hash->tam){
+		aux = pos;
+		pos = 0;
+		while (pos != hash->tam || hash->tabla[pos].estado != 0 || (hash->tabla[pos].clave != clave && hash->tabla[pos].estado != 1)){
+			pos++;
+		}
+	}
+	return pos;
+}
