@@ -1,7 +1,7 @@
 typedef struct hash{
 	size_t tam;
 	size_t cant;
-	destruir_dato_t destrir_dato;
+	destruir_dato_t destruir_dato;
 	campo_hash_t tabla;
 }hash_t;
 
@@ -14,7 +14,7 @@ typedef struct campo_hash{
 campo_t* crear_campo(){
 	campo.clave = '\0';
 	campo.dato = NULL;
-	campo.estado = 1; // vacio = 1
+	campo.estado = 0; // vacio = 0
 	return campo;
 }
 
@@ -66,8 +66,19 @@ void *hash_borrar(hash_t *hash, const char *clave){
 	if (hash->tabla[pos].clave != clave){ // La clave no esta en la posicion que nos dio la funcion de hash
 		int pos = buscar_posicion(hash, clave); // No verificamos que no sea vacio, porque ya lo verificamos antes. A menos de que debamos (?
 	}
-	hash->cant -= 1;
+	hash->tam -= 1
 	hash->tabla[pos].estado = 2;
+	return hash->tabla[pos].dato;
+}
+
+void *hash_obtener(const hash_t *hash, const char *clave){
+	int pos = funcion_hash(???);
+	if (!hash_pertenece(hash, clave)){
+		return NULL;
+	}
+	if (hash->tabla[pos].clave != clave){
+		int pos = buscar_posicion(hash, clave);
+	}
 	return hash->tabla[pos].dato;
 }
 
@@ -81,6 +92,16 @@ size_t hash_cantidad(const hash_t *hash){
 }
 
 void hash_destruir(hash_t* hash){
+	for (int i = 0; i != hash->tam){
+		if (hash->destruir_dato){
+			destruir_dato(hash->tabla[i]->dato);
+		}
+		else{
+			free(hash->tabla[i]->dato);
+		}
+		free(hash->tabla[i]->clave);
+	}
+	free(hash);
 }
 
 /* FUNCIONES AUXILIARES*/
@@ -100,4 +121,24 @@ int buscar_posicion(hash_t* hash, const char *clave){
 		}
 	}
 	return pos;
+}
+
+hash_t* hash_redimensionar(hash_t* hash, size_t tam, hash_destruir_dato_t destruir_dato){
+	if (tam < TAM_INICIAL){
+		tam = TAM_INICIAL;
+	}
+	hash* hash_nuevo = (hash_destruir_dato_t destruir_dato);
+	if (!hash_nuevo){
+		return NULL;
+	}
+	hash_nuevo->tam = hash_nuevo->tam * tam;
+	for (int i = 0; i != hash->tam; i++){ // Recorro el hash viejo para ir guardando los campos
+		if (hash->tabla[pos].estado == 1){ // Guardo unicamente los ocupados
+			char* clave = hash->tabla[pos].clave;
+			void* dato = hash->tabla[pos];
+			hash_guardar(hash_nuevo, clave, dato);
+		}
+	}
+	hash_destruir(hash);
+	return hash_nuevo;
 }
