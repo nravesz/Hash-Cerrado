@@ -66,6 +66,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
 	if (hash->tabla[pos].clave != clave){ // La clave no esta en la posicion que nos dio la funcion de hash
 		int pos = buscar_posicion(hash, clave); // No verificamos que no sea vacio, porque ya lo verificamos antes. A menos de que debamos (?
 	}
+	hash->cant -= 1;
 	hash->tabla[pos].estado = 2;
 	return hash->tabla[pos].dato;
 }
