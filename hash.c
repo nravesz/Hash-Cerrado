@@ -12,6 +12,7 @@ typedef struct campo_hash{
 }campo_t;
 
 campo_t* crear_campo(){
+	campo_t campo;
 	campo.clave = '\0';
 	campo.dato = NULL;
 	campo.estado = 0; // vacio = 0
