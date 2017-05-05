@@ -1,3 +1,10 @@
+#include "hash.h"
+
+/* *****************************************************************
+ *                      ESTRUCTURA DEL HASH
+ * *****************************************************************/
+
+
 typedef struct hash{
 	size_t tam;
 	size_t cant;
@@ -11,13 +18,9 @@ typedef struct campo_hash{
 	estado_t estado;
 }campo_t;
 
-campo_t* crear_campo(){
-	campo_t campo;
-	campo.clave = '\0';
-	campo.dato = NULL;
-	campo.estado = 0; // vacio = 0
-	return campo;
-}
+/* *****************************************************************
+ *                    PRIMITIVAS DEL HASH
+ * *****************************************************************/
 
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
@@ -40,7 +43,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
 		return false;
 	}
 	clave_hash = clave;
-	int pos = funcion_hash(???);
+	int pos = int(murmurhash(clave, uint32_t(hash->tam), 1));
 	if (hash_pertenece(hash, clave)){
 		free(clave_hash);
 		return false;
@@ -59,7 +62,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
 }
 
 void *hash_borrar(hash_t *hash, const char *clave){
-	int pos = funcion_hash(???);
+	int pos = int(murmurhash(clave, uint32_t(hash->tam), 1)); 
 	if (!hash_pertenece(hash, clave)){
 		return NULL;
 	}
@@ -74,7 +77,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
 }
 
 void *hash_obtener(const hash_t *hash, const char *clave){
-	int pos = funcion_hash(???);
+	int pos = int(murmurhash(clave, uint32_t(hash->tam), 1)); 
 	if (!hash_pertenece(hash, clave)){
 		return NULL;
 	}
@@ -106,10 +109,19 @@ void hash_destruir(hash_t* hash){
 	free(hash);
 }
 
-/* FUNCIONES AUXILIARES*/
+/* *****************************************************************
+ *                      FUNCIONES AUXILIARES
+ * *****************************************************************/
 
-/* Recorre el hash. Busca la posicion en la que se encuentre la clave pasada por parametro o hasta halla el
- * primer vacio. */
+
+campo_t* crear_campo(){
+	campo_t campo;
+	campo.clave = '\0';
+	campo.dato = NULL;
+	campo.estado = 0; // vacio = 0
+	return campo;
+}
+
 int buscar_posicion(hash_t* hash, const char *clave){
 	int pos = funcion_hash(???);
 	while (pos != hash->tam || hash->tabla[pos].estado != 0 || (hash->tabla[pos].clave != clave && hash->tabla[pos].estado != 1)){
