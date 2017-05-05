@@ -53,8 +53,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
 	hash->tabla[pos].estado = 1;
 	hash->cant += 1
 	if (hash->tam *(2/3) <= hash->cant) {
-		bool resultado= redimensionar(hash);
-		if (resultado==false) return false;
+		hash = hash_redimensionar(hash, 2, destruir_dato);
 	}
 	return true;
 }
@@ -67,8 +66,10 @@ void *hash_borrar(hash_t *hash, const char *clave){
 	if (hash->tabla[pos].clave != clave){ // La clave no esta en la posicion que nos dio la funcion de hash
 		int pos = buscar_posicion(hash, clave); // No verificamos que no sea vacio, porque ya lo verificamos antes. A menos de que debamos (?
 	}
-	hash->tam -= 1
+	hash->cant -= 1
 	hash->tabla[pos].estado = 2;
+	if (hash->cant <= hash->tam * (1/4)){
+		hash = hash_redimensionar(hash, 1/2, destruir_dato);
 	return hash->tabla[pos].dato;
 }
 
@@ -132,7 +133,8 @@ hash_t* hash_redimensionar(hash_t* hash, size_t tam, hash_destruir_dato_t destru
 	if (!hash_nuevo){
 		return NULL;
 	}
-	hash_nuevo->tam = hash_nuevo->tam * tam;
+	hash_nuevo->cant = hash->cant;
+	hash_nuevo->tam = hash->tam * tam;
 	for (int i = 0; i != hash->tam; i++){ // Recorro el hash viejo para ir guardando los campos
 		if (hash->tabla[pos].estado == 1){ // Guardo unicamente los ocupados
 			char* clave = hash->tabla[pos].clave;
