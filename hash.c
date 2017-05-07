@@ -1,9 +1,13 @@
 #include "hash.h"
+#include "murmurhash.c"
+
+campo_t* crear_campo();
+int buscar_posicion(hash_t* hash, const char *clave);
+hash_t* hash_redimensionar(hash_t* hash, size_t tam, hash_destruir_dato_t destruir_dato);
 
 /* *****************************************************************
  *                      ESTRUCTURA DEL HASH
  * *****************************************************************/
-
 
 typedef struct hash{
 	size_t tam;
@@ -18,6 +22,12 @@ typedef struct campo_hash{
 	estado_t estado;
 }campo_t;
 
+enum estado{
+	vacio,
+	ocupado,
+	borrado
+}estado_t;
+
 /* *****************************************************************
  *                    PRIMITIVAS DEL HASH
  * *****************************************************************/
@@ -29,7 +39,7 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
 	hash->tam = TAM_INICIAL;
 	hash->destruir_dato = destruir_dato;
 	for (int i = 0; i != hash->tam, i++){
-		hash->tabla[i] = crear_campo; //Habria que poner alguna condicion de que si un campo es NULL, hay que borrar todo, si es que pedimos memoria ajja
+		hash->tabla[i] = crear_campo;
 	}
 	if (!hash || !hash->tabla){
 		return NULL;
@@ -66,7 +76,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
 	if (!hash_pertenece(hash, clave)){
 		return NULL;
 	}
-	if (hash->tabla[pos].clave != clave){ // La clave no esta en la posicion que nos dio la funcion de hash
+	if (strcmp(hash->tabla[pos].clave, clave) != 0){ // La clave no esta en la posicion que nos dio la funcion de hash
 		int pos = buscar_posicion(hash, clave); // No verificamos que no sea vacio, porque ya lo verificamos antes. A menos de que debamos (?
 	}
 	hash->cant -= 1
@@ -81,7 +91,7 @@ void *hash_obtener(const hash_t *hash, const char *clave){
 	if (!hash_pertenece(hash, clave)){
 		return NULL;
 	}
-	if (hash->tabla[pos].clave != clave){
+	if (strcmp(hash->tabla[pos].clave, clave) != 0){
 		int pos = buscar_posicion(hash, clave);
 	}
 	return hash->tabla[pos].dato;
@@ -110,9 +120,88 @@ void hash_destruir(hash_t* hash){
 }
 
 /* *****************************************************************
- *                      FUNCIONES AUXILIARES
+ *                    ESTRUCTURA DEL ITER
  * *****************************************************************/
 
+struct iter_hash{
+	hash_t* hash;
+	int pos_actual;
+}typedef iter_hash_t;
+
+/* *****************************************************************
+ *                    PRIMITIVAS DEL ITER
+ * *****************************************************************/
+
+
+hash_iter_t *hash_iter_crear(const hash_t *hash){
+	hash_iter_t* iter= malloc(sizeof(hash_iter_t));
+	if(iter==NULL)return NULL;
+	iter->hash=hash;
+	if(iter->hash->cant=0)iter->pos=NULL;
+	else{
+		int pos = 0;
+		while(iter->tabla[pos].estado!=0){
+				pos++;
+			}
+		}
+	}
+	if(pos!=NULL) iter->pos=pos;
+	return iter;
+
+bool hash_iter_avanzar(hash_iter_t *iter){
+	if(hash_iter_al_final(iter))return false;
+	int nueva_pos=iter->pos+1;
+	while(iter->hash->tabla[nueva_pos].estado!=1){
+		if(iter->hash->tabla[nueva_pos].estado==0)return false;
+		nueva_pos++;
+	}
+	iter->pos_actual=nueva_pos;
+	return true;
+}
+
+const char *hash_iter_ver_actual(const hash_iter_t *iter){
+	if (iter->hash->tabla[iter->pos_actual].estado!=1)return NULL;
+	return iter->hash->tabla[iter->pos_actual].clave;
+}
+
+
+bool hash_iter_al_final(const hash_iter_t *iter){
+	if(iter->pos==NULL)return false;
+	if(iter->hash->tabla[iter->pos_actual+1].estado==1){
+		return false;
+	}
+	else if(iter->hash->tabla[iter->pos_actual+1].estado==0){
+		return true;
+	}
+	else{
+		int pos= iter->pos_actual + 1;
+		while(true){
+			if(iter->hash->tabla[pos].estado==2)pos++;
+			else if(iter->hash->tabla[pos].estado==1)return false;
+			else{
+				return true;
+			}
+		}
+	}
+}
+			
+bool hash_iter_avanzar(hash_iter_t *iter){
+	if(hash_iter_al_final(iter))return false;
+	int nueva_pos=iter->pos+1;
+	while(iter->hash->tabla[nueva_pos].estado!=1){
+		nueva_pos++;
+	}
+	iter->pos=nueva_pos;
+	return true;
+}
+
+void hash_iter_destruir(hash_iter_t* iter){
+	free(iter);
+}
+
+/* *****************************************************************
+ *                      FUNCIONES AUXILIARES
+ * *****************************************************************/
 
 campo_t* crear_campo(){
 	campo_t campo;
@@ -124,13 +213,13 @@ campo_t* crear_campo(){
 
 int buscar_posicion(hash_t* hash, const char *clave){
 	int pos = funcion_hash(???);
-	while (pos != hash->tam || hash->tabla[pos].estado != 0 || (hash->tabla[pos].clave != clave && hash->tabla[pos].estado != 1)){
+	while (pos != hash->tam || hash->tabla[pos].estado != 0 || (strcmp(hash->tabla[pos].clave, clave) != 0 && hash->tabla[pos].estado != 1)){
 		pos++;
 	}
 	if (pos == hash->tam){
 		aux = pos;
 		pos = 0;
-		while (pos != hash->tam || hash->tabla[pos].estado != 0 || (hash->tabla[pos].clave != clave && hash->tabla[pos].estado != 1)){
+		while (pos != hash->tam || hash->tabla[pos].estado != 0 || (strcmp(hash->tabla[pos].clave, clave) != 0 && hash->tabla[pos].estado != 1)){
 			pos++;
 		}
 	}
