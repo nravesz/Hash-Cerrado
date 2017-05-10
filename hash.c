@@ -23,7 +23,7 @@ typedef struct campo{
 typedef struct hash{
 	size_t tam;
 	size_t cant;
-	hash_destruir_dato_t* destruir_dato;
+	hash_destruir_dato_t destruir_dato;
 	campo_t* tabla;
 }hash_t;
 
@@ -88,7 +88,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
 	hash->cant -= 1;
 	hash->tabla[pos].estado = 2;
 	if (hash->cant <= hash->tam * (1/4)){
-		hash = hash_redimensionar(hash, 1/2, destruir_dato);
+		hash = hash_redimensionar(hash, 1/2, hash->destruir_dato);
 	}
 	return hash->tabla[pos].dato;
 }
@@ -116,7 +116,7 @@ size_t hash_cantidad(const hash_t *hash){
 void hash_destruir(hash_t* hash){
 	for (int i = 0; i != hash->tam; i++){
 		if (hash->destruir_dato){
-			destruir_dato(hash->tabla[i].dato);
+			hash->destruir_dato(hash->tabla[i].dato);
 		}
 		else{
 			free(hash->tabla[i].dato);
